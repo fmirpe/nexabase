@@ -11,9 +11,10 @@ Write-Host "   Dashboard: https://dashboard.nexabase.online" -ForegroundColor Gr
 Write-Host "   Soporte: soporte@nexabase.online" -ForegroundColor Gray
 Write-Host ""
 
-# Paso 1: Pedir token
-Write-Host "📝 Paso 1: Ingresa tu token de acceso" -ForegroundColor Yellow
+# Paso 1: Pedir token de acceso JWT
+Write-Host "📝 Paso 1: Ingresa tu Token de Acceso JWT" -ForegroundColor Yellow
 Write-Host "   (Lo obtienes en https://dashboard.nexabase.online/apikeys)" -ForegroundColor Gray
+Write-Host "   ⚠️  Es un JWT que comienza con 'eyJhbGciOiJIUzI1NiIs...'" -ForegroundColor Gray
 $token = Read-Host "   Token"
 
 if ([string]::IsNullOrWhiteSpace($token)) {

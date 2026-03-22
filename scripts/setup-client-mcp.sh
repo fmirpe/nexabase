@@ -20,9 +20,10 @@ echo -e "${GRAY}   Dashboard: https://dashboard.nexabase.online${NC}"
 echo -e "${GRAY}   Soporte: soporte@nexabase.online${NC}"
 echo -e ""
 
-# Paso 1: Pedir token
-echo -e "${YELLOW}📝 Paso 1: Ingresa tu token de acceso${NC}"
+# Paso 1: Pedir token de acceso JWT
+echo -e "${YELLOW}📝 Paso 1: Ingresa tu Token de Acceso JWT${NC}"
 echo -e "${GRAY}   (Lo obtienes en https://dashboard.nexabase.online/apikeys)${NC}"
+echo -e "${GRAY}   ⚠️  Es un JWT que comienza con 'eyJhbGciOiJIUzI1NiIs...'${NC}"
 read -p "   Token: " token
 
 if [ -z "$token" ]; then

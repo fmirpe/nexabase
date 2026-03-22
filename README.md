@@ -24,12 +24,14 @@ NexaBase MCP (Model Context Protocol) te permite conectar tu editor de código f
 
 ## ⚡ Inicio Rápido (5 Minutos)
 
-### **Paso 1: Obtén tu API Key**
+### **Paso 1: Obtén tu Token de Acceso JWT**
 
 1. Ve a [Dashboard NexaBase](https://dashboard.nexabase.online/apikeys)
 2. Inicia sesión
 3. Click en **"Generar Nueva API Key"**
-4. Copia tu token (comienza con `eyJhbGciOiJIUzI1NiIs...`)
+4. Copia tu token JWT (comienza con `eyJhbGciOiJIUzI1NiIs...`)
+
+> **Nota:** Aunque el dashboard muestra "API Key", en realidad se trata de un **JWT Token** que expira en 24 horas. Ver `MCP_TOKEN_VS_APIKEY_CLARIFICATION.md` para más detalles.
 
 ### **Paso 2: Descarga el Script**
 
@@ -186,9 +188,9 @@ Muestra información del tenant actual
 
 Solo Node.js 18+ y tu editor favorito. El script configura todo automáticamente.
 
-### **¿Mi API Key expira?**
+### **¿Mi Token de Acceso JWT expira?**
 
-Por defecto, las API Keys expiran en 24 horas. Puedes generar una nueva cuando lo necesites.
+Sí, los JWT tokens expiran en **24 horas**. Puedes generar uno nuevo en el dashboard cuando lo necesites. El token es un JWT (JSON Web Token) que comienza con `eyJhbGciOiJIUzI1NiIs...`.
 
 ### **¿Funciona en producción?**
 

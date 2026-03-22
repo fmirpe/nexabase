@@ -20,7 +20,7 @@ Este kit te ayudará a conectar tu editor de código con NexaBase en menos de 5 
 
 ## ⚡ Configuración en 3 Pasos
 
-### **Paso 1: Obtén tu Token**
+### **Paso 1: Obtén tu Token de Acceso JWT**
 
 Ingresa a tu dashboard de NexaBase:
 
@@ -28,7 +28,9 @@ Ingresa a tu dashboard de NexaBase:
 https://dashboard.nexabase.online/apikeys
 ```
 
-Click en **"Generar Nuevo Token"** y copia el token.
+Click en **"Generar Nuevo Token"** y copia el token JWT.
+
+> **Nota:** El token es un JWT que comienza con `eyJhbGciOiJIUzI1NiIs...` y expira en 24 horas.
 
 ---
 
@@ -38,13 +40,13 @@ Descarga y ejecuta:
 
 #### **Windows (PowerShell)**
 ```powershell
-powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'"
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'"
 .\setup-mcp.ps1
 ```
 
 #### **macOS/Linux (Bash)**
 ```bash
-curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.sh
+curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.sh
 chmod +x setup-client-mcp.sh
 ./setup-client-mcp.sh
 ```
@@ -148,7 +150,7 @@ curl https://api.nexabase.online/health
 
 ### **"401 Unauthorized"**
 
-**Solución:** Tu token expiró o es inválido
+**Solución:** Tu token JWT expiró o es inválido
 
 1. Genera nuevo token en el dashboard
 2. Ejecuta nuevamente el script de configuración

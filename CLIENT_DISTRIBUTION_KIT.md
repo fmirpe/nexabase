@@ -45,11 +45,11 @@ Para comenzar a desarrollar, sigue estos pasos:
 2. Ejecuta el script según tu sistema:
 
    Windows (PowerShell):
-   powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'"
+   powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'"
    .\setup-mcp.ps1
 
    macOS/Linux:
-   curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.sh
+   curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.sh
    chmod +x setup-client-mcp.sh
    ./setup-client-mcp.sh
 
@@ -104,12 +104,12 @@ https://github.com/fmirpe/nexabase
 
 **Windows (PowerShell):**
 ```powershell
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'
 ```
 
 **macOS/Linux (curl):**
 ```bash
-curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/setup-client-mcp.sh
+curl -o setup-client-mcp.sh https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.sh
 chmod +x setup-client-mcp.sh
 ./setup-client-mcp.sh
 ```
