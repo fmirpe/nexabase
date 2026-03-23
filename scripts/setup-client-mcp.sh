@@ -104,13 +104,11 @@ configure_antigravity() {
         mkdir -p "$antigravityDir"
     fi
 
-    cat > "$antigravityDir/mcp-config.json" << EOF
+    # Formato correcto para Antigravity: sin campo 'type', solo url y headers
+    cat > "$antigravityDir/mcp_config.json" << EOF
 {
-  "version": "1.0",
   "mcpServers": {
     "nexabase": {
-      "enabled": true,
-      "type": "sse",
       "url": "$instanceUrl/mcp/sse",
       "headers": {
         "X-API-Key": "$apiKey"
@@ -119,7 +117,7 @@ configure_antigravity() {
   }
 }
 EOF
-    echo -e "${GREEN}   ✅ Archivo creado: .antigravity/mcp-config.json${NC}"
+    echo -e "${GREEN}   ✅ Archivo creado: .antigravity/mcp_config.json${NC}"
 }
 
 # Función para configurar Cursor
