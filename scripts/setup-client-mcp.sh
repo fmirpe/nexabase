@@ -94,18 +94,36 @@ EOF
     echo -e "${GREEN}   ✅ Archivo creado: .trae/mcp.json${NC}"
 }
 
-# Función para configurar Antigravity
+# Función para configurar Antigravity (ubicación global)
 configure_antigravity() {
     echo -e ""
-    echo -e "${GREEN}🦅 Configurando Antigravity...${NC}"
+    echo -e "${GREEN}🦅 Configurando Antigravity (global)...${NC}"
 
-    antigravityDir="$projectRoot/.antigravity"
-    if [ ! -d "$antigravityDir" ]; then
-        mkdir -p "$antigravityDir"
+    antigravityGlobalDir="$HOME/.gemini/antigravity"
+    if [ ! -d "$antigravityGlobalDir" ]; then
+        mkdir -p "$antigravityGlobalDir"
     fi
 
-    # Formato correcto para Antigravity: sin campo 'type', solo url y headers
-    cat > "$antigravityDir/mcp_config.json" << EOF
+    antigravityGlobalPath="$antigravityGlobalDir/mcp_config.json"
+
+    # Leer configuración existente y agregar NexaBase
+    if [ -f "$antigravityGlobalPath" ]; then
+        # Usar jq si está disponible, sino usar python
+        if command -v jq &> /dev/null; then
+            jq '.mcpServers.nexabase = {"url": "'"$instanceUrl/mcp/sse"'", "headers": {"X-API-Key": "'"$apiKey"'"}}' "$antigravityGlobalPath" > "$antigravityGlobalPath.tmp"
+            mv "$antigravityGlobalPath.tmp" "$antigravityGlobalPath"
+        elif command -v python3 &> /dev/null; then
+            python3 -c "
+import json
+with open('$antigravityGlobalPath', 'r') as f:
+    config = json.load(f)
+config.setdefault('mcpServers', {})['nexabase'] = {'url': '$instanceUrl/mcp/sse', 'headers': {'X-API-Key': '$apiKey'}}
+with open('$antigravityGlobalPath', 'w') as f:
+    json.dump(config, f, indent=2)
+"
+        else
+            # Fallback: sobrescribir
+            cat > "$antigravityGlobalPath" << EOF
 {
   "mcpServers": {
     "nexabase": {
@@ -117,7 +135,26 @@ configure_antigravity() {
   }
 }
 EOF
-    echo -e "${GREEN}   ✅ Archivo creado: .antigravity/mcp_config.json${NC}"
+        fi
+        echo -e "${GREEN}   📁 Archivo actualizado: $antigravityGlobalPath${NC}"
+    else
+        # Crear nuevo archivo
+        cat > "$antigravityGlobalPath" << EOF
+{
+  "mcpServers": {
+    "nexabase": {
+      "url": "$instanceUrl/mcp/sse",
+      "headers": {
+        "X-API-Key": "$apiKey"
+      }
+    }
+  }
+}
+EOF
+        echo -e "${GREEN}   📁 Archivo creado: $antigravityGlobalPath${NC}"
+    fi
+    
+    echo -e "${GREEN}✅ Antigravity configurado (global)${NC}"
 }
 
 # Función para configurar Cursor

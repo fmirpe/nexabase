@@ -86,32 +86,43 @@ function Configure-Trae {
     Write-Host "   ✅ Archivo creado: .trae/mcp.json" -ForegroundColor Green
 }
 
-# Función para configurar Antigravity
+# Función para configurar Antigravity (ubicación global)
 function Configure-Antigravity {
     Write-Host ""
-    Write-Host "🦅 Configurando Antigravity..." -ForegroundColor Green
+    Write-Host "🦅 Configurando Antigravity (global)..." -ForegroundColor Green
 
-    $antigravityDir = Join-Path $projectRoot ".antigravity"
-    if (!(Test-Path $antigravityDir)) {
-        New-Item -ItemType Directory -Path $antigravityDir | Out-Null
+    $antigravityGlobalDir = Join-Path $env:USERPROFILE ".gemini\antigravity"
+    if (!(Test-Path $antigravityGlobalDir)) {
+        New-Item -ItemType Directory -Path $antigravityGlobalDir | Out-Null
     }
 
-    # Formato correcto para Antigravity: sin campo 'type', solo url y headers
-    $jsonContent = @"
-{
-  "mcpServers": {
-    "nexabase": {
-      "url": "$instanceUrl/mcp/sse",
-      "headers": {
-        "X-API-Key": "$apiKey"
-      }
-    }
-  }
-}
-"@
+    $antigravityGlobalPath = Join-Path $antigravityGlobalDir "mcp_config.json"
 
-    $jsonContent | Out-File (Join-Path $antigravityDir "mcp_config.json") -Encoding UTF8
-    Write-Host "   ✅ Archivo creado: .antigravity/mcp_config.json" -ForegroundColor Green
+    # Leer configuración existente si hay
+    $existingConfig = @{}
+    if (Test-Path $antigravityGlobalPath) {
+        try {
+            $existingConfig = Get-Content $antigravityGlobalPath -Raw | ConvertFrom-Json
+        } catch {
+            Write-Host "   ⚠️  No se pudo leer configuración existente, se creará nueva" -ForegroundColor Yellow
+        }
+    }
+
+    # Agregar NexaBase manteniendo otros MCPs
+    if (-not $existingConfig.mcpServers) {
+        $existingConfig.mcpServers = @{}
+    }
+    
+    $existingConfig.mcpServers.nexabase = @{
+        url = "$instanceUrl/mcp/sse"
+        headers = @{
+            "X-API-Key" = $apiKey
+        }
+    }
+
+    $existingConfig | ConvertTo-Json -Depth 10 | Out-File $antigravityGlobalPath -Encoding UTF8
+    Write-Host "   📁 Archivo actualizado: $antigravityGlobalPath" -ForegroundColor Green
+    Write-Host "✅ Antigravity configurado (global)" -ForegroundColor Green
 }
 
 # Función para configurar Cursor
