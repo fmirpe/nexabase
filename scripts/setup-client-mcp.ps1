@@ -99,28 +99,31 @@ function Configure-Antigravity {
     $antigravityGlobalPath = Join-Path $antigravityGlobalDir "mcp_config.json"
 
     # Leer configuración existente si hay
-    $existingConfig = @{}
+    $existingConfig = @{ mcpServers = @{} }
     if (Test-Path $antigravityGlobalPath) {
         try {
             $existingConfig = Get-Content $antigravityGlobalPath -Raw | ConvertFrom-Json
+            if (-not $existingConfig.mcpServers) {
+                $existingConfig.mcpServers = @{}
+            }
         } catch {
             Write-Host "   ⚠️  No se pudo leer configuración existente, se creará nueva" -ForegroundColor Yellow
         }
     }
 
     # Agregar NexaBase manteniendo otros MCPs
-    if (-not $existingConfig.mcpServers) {
-        $existingConfig.mcpServers = @{}
-    }
-    
+    # Nota: Usamos query parameter para mayor compatibilidad con Antigravity
     $existingConfig.mcpServers.nexabase = @{
-        url = "$instanceUrl/mcp/sse"
-        headers = @{
-            "X-API-Key" = $apiKey
-        }
+        serverUrl = "$instanceUrl/mcp/sse?apiKey=$apiKey"
+        headers = @{}
     }
 
-    $existingConfig | ConvertTo-Json -Depth 10 | Out-File $antigravityGlobalPath -Encoding UTF8
+    # Escribir JSON con formato correcto (sin BOM)
+    $jsonContent = $existingConfig | ConvertTo-Json -Depth 10
+    
+    # Usar [System.IO.File]::WriteAllText para evitar BOM
+    [System.IO.File]::WriteAllText($antigravityGlobalPath, $jsonContent, [System.Text.UTF8Encoding]::new($false))
+    
     Write-Host "   📁 Archivo actualizado: $antigravityGlobalPath" -ForegroundColor Green
     Write-Host "✅ Antigravity configurado (global)" -ForegroundColor Green
 }

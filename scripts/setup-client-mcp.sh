@@ -110,27 +110,24 @@ configure_antigravity() {
     if [ -f "$antigravityGlobalPath" ]; then
         # Usar jq si está disponible, sino usar python
         if command -v jq &> /dev/null; then
-            jq '.mcpServers.nexabase = {"url": "'"$instanceUrl/mcp/sse"'", "headers": {"X-API-Key": "'"$apiKey"'"}}' "$antigravityGlobalPath" > "$antigravityGlobalPath.tmp"
-            mv "$antigravityGlobalPath.tmp" "$antigravityGlobalPath"
+            jq '.mcpServers.nexabase = {"serverUrl": "'"$instanceUrl/mcp/sse?apiKey=$apiKey"'", "headers": {}}' "$antigravityGlobalPath" > "$antigravityGlobalPath.tmp" && mv "$antigravityGlobalPath.tmp" "$antigravityGlobalPath"
         elif command -v python3 &> /dev/null; then
-            python3 -c "
+            python3 << PYEOF
 import json
 with open('$antigravityGlobalPath', 'r') as f:
     config = json.load(f)
-config.setdefault('mcpServers', {})['nexabase'] = {'url': '$instanceUrl/mcp/sse', 'headers': {'X-API-Key': '$apiKey'}}
+config.setdefault('mcpServers', {})['nexabase'] = {'serverUrl': '$instanceUrl/mcp/sse?apiKey=$apiKey', 'headers': {}}
 with open('$antigravityGlobalPath', 'w') as f:
     json.dump(config, f, indent=2)
-"
+PYEOF
         else
-            # Fallback: sobrescribir
+            # Fallback: sobrescribir (puede perder otros MCPs)
             cat > "$antigravityGlobalPath" << EOF
 {
   "mcpServers": {
     "nexabase": {
-      "url": "$instanceUrl/mcp/sse",
-      "headers": {
-        "X-API-Key": "$apiKey"
-      }
+      "serverUrl": "$instanceUrl/mcp/sse?apiKey=$apiKey",
+      "headers": {}
     }
   }
 }
