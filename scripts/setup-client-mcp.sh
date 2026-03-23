@@ -20,15 +20,24 @@ echo -e "${GRAY}   Dashboard: https://dashboard.nexabase.online${NC}"
 echo -e "${GRAY}   Soporte: soporte@nexabase.online${NC}"
 echo -e ""
 
-# Paso 1: Pedir token de acceso JWT
-echo -e "${YELLOW}📝 Paso 1: Ingresa tu Token de Acceso JWT${NC}"
+# Paso 1: Pedir API Key
+echo -e "${YELLOW}📝 Paso 1: Ingresa tu API Key de NexaBase${NC}"
 echo -e "${GRAY}   (Lo obtienes en https://dashboard.nexabase.online/apikeys)${NC}"
-echo -e "${GRAY}   ⚠️  Es un JWT que comienza con 'eyJhbGciOiJIUzI1NiIs...'${NC}"
-read -p "   Token: " token
+echo -e "${GRAY}   ⚠️  Comienza con 'nxb_...'${NC}"
+read -p "   API Key: " apiKey
 
-if [ -z "$token" ]; then
-    echo -e "${RED}❌ Error: Token es requerido${NC}"
+if [ -z "$apiKey" ]; then
+    echo -e "${RED}❌ Error: API Key es requerido${NC}"
     exit 1
+fi
+
+# Validar formato
+if [[ ! $apiKey =~ ^nxb_ ]]; then
+    echo -e "${YELLOW}⚠️  Advertencia: La API Key debería comenzar con 'nxb_'${NC}"
+    read -p "   ¿Continuar de todos modos? (s/n): " continue
+    if [ "$continue" != "s" ] && [ "$continue" != "S" ]; then
+        exit 1
+    }
 fi
 
 # Paso 2: Pedir URL de instancia
@@ -61,12 +70,12 @@ projectRoot=$(pwd)
 configure_trae() {
     echo -e ""
     echo -e "${GREEN}🚀 Configurando Trae IDE...${NC}"
-    
+
     traeDir="$projectRoot/.trae"
     if [ ! -d "$traeDir" ]; then
         mkdir -p "$traeDir"
     fi
-    
+
     cat > "$traeDir/mcp.json" << EOF
 {
   "mcpServers": [
@@ -75,7 +84,7 @@ configure_trae() {
       "type": "sse",
       "url": "$instanceUrl/mcp/sse",
       "headers": {
-        "Authorization": "Bearer $token"
+        "X-API-Key": "$apiKey"
       },
       "enabled": true
     }
@@ -95,7 +104,6 @@ configure_antigravity() {
         mkdir -p "$antigravityDir"
     fi
 
-    # ✅ FORMATO CORRECTO PARA ANTIGRAVITY: mcp_config.json con estructura mcpServers
     cat > "$antigravityDir/mcp_config.json" << EOF
 {
   "mcpServers": {
@@ -103,7 +111,7 @@ configure_antigravity() {
       "type": "sse",
       "url": "$instanceUrl/mcp/sse",
       "headers": {
-        "Authorization": "Bearer $token"
+        "X-API-Key": "$apiKey"
       }
     }
   }
@@ -116,12 +124,12 @@ EOF
 configure_cursor() {
     echo -e ""
     echo -e "${GREEN}📟 Configurando Cursor IDE...${NC}"
-    
+
     cursorDir="$projectRoot/.cursor"
     if [ ! -d "$cursorDir" ]; then
         mkdir -p "$cursorDir"
     fi
-    
+
     cat > "$cursorDir/mcp.json" << EOF
 {
   "servers": [
@@ -130,7 +138,7 @@ configure_cursor() {
       "type": "sse",
       "url": "$instanceUrl/mcp/sse",
       "headers": {
-        "Authorization": "Bearer $token"
+        "X-API-Key": "$apiKey"
       }
     }
   ]
@@ -143,12 +151,12 @@ EOF
 configure_vscode() {
     echo -e ""
     echo -e "${GREEN}📝 Configurando VS Code...${NC}"
-    
+
     vscodeDir="$projectRoot/.vscode"
     if [ ! -d "$vscodeDir" ]; then
         mkdir -p "$vscodeDir"
     fi
-    
+
     cat > "$vscodeDir/mcp.json" << EOF
 {
   "servers": [
@@ -157,7 +165,7 @@ configure_vscode() {
       "type": "sse",
       "url": "$instanceUrl/mcp/sse",
       "headers": {
-        "Authorization": "Bearer $token"
+        "X-API-Key": "$apiKey"
       }
     }
   ]
@@ -236,16 +244,16 @@ EOF
 
 echo -e "${GREEN}   ✅ Archivo creado: MCP_CONFIGURADO.md${NC}"
 
-# Guardar token (opcional)
+# Guardar API Key (opcional)
 echo -e ""
-echo -e "${YELLOW}🔒 ¿Guardar token en archivo para futuras configuraciones?${NC}"
+echo -e "${YELLOW}🔒 ¿Guardar API Key en archivo para futuras configuraciones?${NC}"
 echo -e "${YELLOW}   ⚠️  ¡No compartas este archivo!${NC}"
 read -p "   (s/n): " saveToken
 
 if [ "$saveToken" = "s" ] || [ "$saveToken" = "S" ]; then
-    echo "$token" > "nexabase-token.txt"
-    chmod 600 "nexabase-token.txt"
-    echo -e "${GREEN}   ✅ Token guardado en: nexabase-token.txt${NC}"
+    echo "$apiKey" > "nexabase-apikey.txt"
+    chmod 600 "nexabase-apikey.txt"
+    echo -e "${GREEN}   ✅ API Key guardado en: nexabase-apikey.txt${NC}"
     echo -e "${YELLOW}   ⚠️  ¡No compartas este archivo!${NC}"
 fi
 

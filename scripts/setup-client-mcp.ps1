@@ -11,15 +11,24 @@ Write-Host "   Dashboard: https://dashboard.nexabase.online" -ForegroundColor Gr
 Write-Host "   Soporte: soporte@nexabase.online" -ForegroundColor Gray
 Write-Host ""
 
-# Paso 1: Pedir token de acceso JWT
-Write-Host "📝 Paso 1: Ingresa tu Token de Acceso JWT" -ForegroundColor Yellow
+# Paso 1: Pedir API Key
+Write-Host "📝 Paso 1: Ingresa tu API Key de NexaBase" -ForegroundColor Yellow
 Write-Host "   (Lo obtienes en https://dashboard.nexabase.online/apikeys)" -ForegroundColor Gray
-Write-Host "   ⚠️  Es un JWT que comienza con 'eyJhbGciOiJIUzI1NiIs...'" -ForegroundColor Gray
-$token = Read-Host "   Token"
+Write-Host "   ⚠️  Comienza con 'nxb_...'" -ForegroundColor Gray
+$apiKey = Read-Host "   API Key"
 
-if ([string]::IsNullOrWhiteSpace($token)) {
-    Write-Host "❌ Error: Token es requerido" -ForegroundColor Red
+if ([string]::IsNullOrWhiteSpace($apiKey)) {
+    Write-Host "❌ Error: API Key es requerido" -ForegroundColor Red
     exit 1
+}
+
+# Validar formato
+if (-not $apiKey.StartsWith("nxb_")) {
+    Write-Host "⚠️  Advertencia: La API Key debería comenzar con 'nxb_'" -ForegroundColor Yellow
+    $continue = Read-Host "   ¿Continuar de todos modos? (s/n)"
+    if ($continue -ne "s" -and $continue -ne "S") {
+        exit 1
+    }
 }
 
 # Paso 2: Pedir URL de instancia
@@ -53,12 +62,12 @@ $projectRoot = Get-Location
 function Configure-Trae {
     Write-Host ""
     Write-Host "🚀 Configurando Trae IDE..." -ForegroundColor Green
-    
+
     $traeDir = Join-Path $projectRoot ".trae"
     if (!(Test-Path $traeDir)) {
         New-Item -ItemType Directory -Path $traeDir | Out-Null
     }
-    
+
     $config = @{
         mcpServers = @(
             @{
@@ -66,13 +75,13 @@ function Configure-Trae {
                 type = "sse"
                 url = "$instanceUrl/mcp/sse"
                 headers = @{
-                    Authorization = "Bearer $token"
+                    "X-API-Key" = $apiKey
                 }
                 enabled = $true
             }
         )
     }
-    
+
     $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $traeDir "mcp.json") -Encoding UTF8
     Write-Host "   ✅ Archivo creado: .trae/mcp.json" -ForegroundColor Green
 }
@@ -87,14 +96,13 @@ function Configure-Antigravity {
         New-Item -ItemType Directory -Path $antigravityDir | Out-Null
     }
 
-    # ✅ FORMATO CORRECTO PARA ANTIGRAVITY: mcp_config.json con estructura mcpServers
     $config = @{
         mcpServers = @{
             nexabase = @{
                 type = "sse"
                 url = "$instanceUrl/mcp/sse"
                 headers = @{
-                    Authorization = "Bearer $token"
+                    "X-API-Key" = $apiKey
                 }
             }
         }
@@ -108,12 +116,12 @@ function Configure-Antigravity {
 function Configure-Cursor {
     Write-Host ""
     Write-Host "📟 Configurando Cursor IDE..." -ForegroundColor Green
-    
+
     $cursorDir = Join-Path $projectRoot ".cursor"
     if (!(Test-Path $cursorDir)) {
         New-Item -ItemType Directory -Path $cursorDir | Out-Null
     }
-    
+
     $config = @{
         servers = @(
             @{
@@ -121,12 +129,12 @@ function Configure-Cursor {
                 type = "sse"
                 url = "$instanceUrl/mcp/sse"
                 headers = @{
-                    Authorization = "Bearer $token"
+                    "X-API-Key" = $apiKey
                 }
             }
         )
     }
-    
+
     $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $cursorDir "mcp.json") -Encoding UTF8
     Write-Host "   ✅ Archivo creado: .cursor/mcp.json" -ForegroundColor Green
 }
@@ -135,12 +143,12 @@ function Configure-Cursor {
 function Configure-VSCode {
     Write-Host ""
     Write-Host "📝 Configurando VS Code..." -ForegroundColor Green
-    
+
     $vscodeDir = Join-Path $projectRoot ".vscode"
     if (!(Test-Path $vscodeDir)) {
         New-Item -ItemType Directory -Path $vscodeDir | Out-Null
     }
-    
+
     $config = @{
         servers = @(
             @{
@@ -148,12 +156,12 @@ function Configure-VSCode {
                 type = "sse"
                 url = "$instanceUrl/mcp/sse"
                 headers = @{
-                    Authorization = "Bearer $token"
+                    "X-API-Key" = $apiKey
                 }
             }
         )
     }
-    
+
     $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $vscodeDir "mcp.json") -Encoding UTF8
     Write-Host "   ✅ Archivo creado: .vscode/mcp.json" -ForegroundColor Green
 }
@@ -221,15 +229,15 @@ $readme = @"
 $readme | Out-File "MCP_CONFIGURADO.md" -Encoding UTF8
 Write-Host "   ✅ Archivo creado: MCP_CONFIGURADO.md" -ForegroundColor Green
 
-# Guardar token (opcional)
+# Guardar API Key (opcional)
 Write-Host ""
-Write-Host "🔒 ¿Guardar token en archivo para futuras configuraciones?" -ForegroundColor Yellow
+Write-Host "🔒 ¿Guardar API Key en archivo para futuras configuraciones?" -ForegroundColor Yellow
 Write-Host "   ⚠️  ¡No compartas este archivo!" -ForegroundColor Yellow
 $saveToken = Read-Host "   (s/n)"
 
 if ($saveToken -eq "s" -or $saveToken -eq "S") {
-    $token | Out-File "nexabase-token.txt" -Encoding UTF8
-    Write-Host "   ✅ Token guardado en: nexabase-token.txt" -ForegroundColor Green
+    $apiKey | Out-File "nexabase-apikey.txt" -Encoding UTF8
+    Write-Host "   ✅ API Key guardado en: nexabase-apikey.txt" -ForegroundColor Green
     Write-Host "   ⚠️  ¡No compartas este archivo!" -ForegroundColor Yellow
 }
 
