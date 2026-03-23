@@ -96,20 +96,24 @@ function Configure-Antigravity {
         New-Item -ItemType Directory -Path $antigravityDir | Out-Null
     }
 
-    $config = @{
-        mcpServers = @{
-            nexabase = @{
-                type = "sse"
-                url = "$instanceUrl/mcp/sse"
-                headers = @{
-                    "X-API-Key" = $apiKey
-                }
-            }
-        }
+    $jsonContent = @"
+{
+  "version": "1.0",
+  "mcpServers": {
+    "nexabase": {
+      "enabled": true,
+      "type": "sse",
+      "url": "$instanceUrl/mcp/sse",
+      "headers": {
+        "X-API-Key": "$apiKey"
+      }
     }
+  }
+}
+"@
 
-    $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $antigravityDir "mcp_config.json") -Encoding UTF8
-    Write-Host "   ✅ Archivo creado: .antigravity/mcp_config.json" -ForegroundColor Green
+    $jsonContent | Out-File (Join-Path $antigravityDir "mcp-config.json") -Encoding UTF8
+    Write-Host "   ✅ Archivo creado: .antigravity/mcp-config.json" -ForegroundColor Green
 }
 
 # Función para configurar Cursor
