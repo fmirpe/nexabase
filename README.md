@@ -38,6 +38,7 @@ NexaBase MCP (Model Context Protocol) te permite conectar tu editor de código f
 #### **Windows (PowerShell)**
 ```powershell
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/fmirpe/nexabase/main/scripts/setup-client-mcp.ps1' -OutFile 'setup-mcp.ps1'
+
 .\setup-mcp.ps1
 ```
 
