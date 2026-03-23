@@ -1,25 +1,39 @@
 ﻿# NexaBase MCP Setup Script para Clientes
-# Uso: .\setup-client-mcp.ps1
+# Uso: .\setup-client-mcp.ps1 [-Local]
 # Soporte: soporte@nexabase.online
+#
+# Opciones:
+#   .\setup-client-mcp.ps1          # Producción (default)
+#   .\setup-client-mcp.ps1 -Local   # Localhost para testing
 
-Write-Host "🚀 Configuración de NexaBase MCP para Clientes" -ForegroundColor Cyan
+param(
+    [switch]$Local
+)
+
+if ($Local) {
+    $defaultInstanceUrl = "http://localhost:3000"
+    Write-Host "🚀 Configuración de NexaBase MCP - LOCAL" -ForegroundColor Cyan
+} else {
+    $defaultInstanceUrl = "https://api.nexabase.online"
+    Write-Host "🚀 Configuración de NexaBase MCP - PRODUCCIÓN" -ForegroundColor Cyan
+}
+
 Write-Host "==============================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "   NexaBase - Backend as a Service" -ForegroundColor White
-Write-Host "   URL: https://api.nexabase.online" -ForegroundColor Gray
-Write-Host "   Dashboard: https://dashboard.nexabase.online" -ForegroundColor Gray
+Write-Host "   URL: $defaultInstanceUrl" -ForegroundColor Gray
+Write-Host "   Dashboard: $($defaultInstanceUrl)/dashboard" -ForegroundColor Gray
 Write-Host "   Soporte: soporte@nexabase.online" -ForegroundColor Gray
 Write-Host ""
 
 # Paso 1: Pedir API Key
 Write-Host "📝 Paso 1: Ingresa tu API Key de NexaBase" -ForegroundColor Yellow
-Write-Host "   (Lo obtienes en https://dashboard.nexabase.online/apikeys)" -ForegroundColor Gray
+Write-Host "   (Por defecto: usa la API Key del script)" -ForegroundColor Gray
 Write-Host "   ⚠️  Comienza con 'nxb_...'" -ForegroundColor Gray
-$apiKey = Read-Host "   API Key"
+$apiKey = Read-Host "   API Key [nxb_abbf5bd09203a2390d84d742a201b599c10738b2cfde2c78680ac14dff80a8c1]"
 
 if ([string]::IsNullOrWhiteSpace($apiKey)) {
-    Write-Host "❌ Error: API Key es requerido" -ForegroundColor Red
-    exit 1
+    $apiKey = "nxb_abbf5bd09203a2390d84d742a201b599c10738b2cfde2c78680ac14dff80a8c1"
 }
 
 # Validar formato
@@ -34,11 +48,11 @@ if (-not $apiKey.StartsWith("nxb_")) {
 # Paso 2: Pedir URL de instancia
 Write-Host ""
 Write-Host "🌐 Paso 2: URL de tu instancia NexaBase" -ForegroundColor Yellow
-Write-Host "   (Por defecto: https://api.nexabase.online)" -ForegroundColor Gray
-$instanceUrl = Read-Host "   URL [https://api.nexabase.online]"
+Write-Host "   (Por defecto: $defaultInstanceUrl)" -ForegroundColor Gray
+$instanceUrl = Read-Host "   URL [$defaultInstanceUrl]"
 
 if ([string]::IsNullOrWhiteSpace($instanceUrl)) {
-    $instanceUrl = "https://api.nexabase.online"
+    $instanceUrl = $defaultInstanceUrl
 }
 
 # Limpiar URL (quitar trailing slash)

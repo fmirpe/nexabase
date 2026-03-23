@@ -1,6 +1,10 @@
 #!/bin/bash
 # NexaBase MCP Setup Script para Clientes (Linux/macOS)
-# Uso: ./setup-client-mcp.sh
+# Uso: ./setup-client-mcp.sh [--local]
+#
+# Opciones:
+#   ./setup-client-mcp.sh          # Producción (default)
+#   ./setup-client-mcp.sh --local  # Localhost para testing
 
 # Colores
 CYAN='\033[0;36m'
@@ -11,24 +15,31 @@ GRAY='\033[0;90m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}🚀 Configuración de NexaBase MCP para Clientes${NC}"
+# Parsear argumentos
+if [ "$1" = "--local" ]; then
+    defaultInstanceUrl="http://localhost:3000"
+    echo -e "${CYAN}🚀 Configuración de NexaBase MCP - LOCAL${NC}"
+else
+    defaultInstanceUrl="https://api.nexabase.online"
+    echo -e "${CYAN}🚀 Configuración de NexaBase MCP - PRODUCCIÓN${NC}"
+fi
+
 echo -e "${CYAN}==============================================${NC}"
 echo -e ""
 echo -e "${WHITE}   NexaBase - Backend as a Service${NC}"
-echo -e "${GRAY}   URL: https://api.nexabase.online${NC}"
-echo -e "${GRAY}   Dashboard: https://dashboard.nexabase.online${NC}"
+echo -e "${GRAY}   URL: $defaultInstanceUrl${NC}"
+echo -e "${GRAY}   Dashboard: $defaultInstanceUrl/dashboard${NC}"
 echo -e "${GRAY}   Soporte: soporte@nexabase.online${NC}"
 echo -e ""
 
 # Paso 1: Pedir API Key
 echo -e "${YELLOW}📝 Paso 1: Ingresa tu API Key de NexaBase${NC}"
-echo -e "${GRAY}   (Lo obtienes en https://dashboard.nexabase.online/apikeys)${NC}"
+echo -e "${GRAY}   (Por defecto: usa la API Key del script)${NC}"
 echo -e "${GRAY}   ⚠️  Comienza con 'nxb_...'${NC}"
-read -p "   API Key: " apiKey
+read -p "   API Key [nxb_abbf5bd09203a2390d84d742a201b599c10738b2cfde2c78680ac14dff80a8c1]: " apiKey
 
 if [ -z "$apiKey" ]; then
-    echo -e "${RED}❌ Error: API Key es requerido${NC}"
-    exit 1
+    apiKey="nxb_abbf5bd09203a2390d84d742a201b599c10738b2cfde2c78680ac14dff80a8c1"
 fi
 
 # Validar formato
@@ -37,17 +48,17 @@ if [[ ! $apiKey =~ ^nxb_ ]]; then
     read -p "   ¿Continuar de todos modos? (s/n): " continue
     if [ "$continue" != "s" ] && [ "$continue" != "S" ]; then
         exit 1
-    }
+    fi
 fi
 
 # Paso 2: Pedir URL de instancia
 echo -e ""
 echo -e "${YELLOW}🌐 Paso 2: URL de tu instancia NexaBase${NC}"
-echo -e "${GRAY}   (Por defecto: https://api.nexabase.online)${NC}"
-read -p "   URL [https://api.nexabase.online]: " instanceUrl
+echo -e "${GRAY}   (Por defecto: $defaultInstanceUrl)${NC}"
+read -p "   URL [$defaultInstanceUrl]: " instanceUrl
 
 if [ -z "$instanceUrl" ]; then
-    instanceUrl="https://api.nexabase.online"
+    instanceUrl="$defaultInstanceUrl"
 fi
 
 # Limpiar URL (quitar trailing slash)
@@ -117,7 +128,7 @@ import json
 with open('$antigravityGlobalPath', 'r') as f:
     config = json.load(f)
 config.setdefault('mcpServers', {})['nexabase'] = {
-    'serverUrl': '$instanceUrl/mcp/sse',
+    'serverURL': '$instanceUrl/mcp/sse',
     'headers': {
         'X-API-Key': '$apiKey'
     }
@@ -147,7 +158,7 @@ EOF
 {
   "mcpServers": {
     "nexabase": {
-      "serverUrl": "$instanceUrl/mcp/sse",
+      "serverURL": "$instanceUrl/mcp/sse",
       "headers": {
         "X-API-Key": "$apiKey"
       }
@@ -157,7 +168,7 @@ EOF
 EOF
         echo -e "${GREEN}   📁 Archivo creado: $antigravityGlobalPath${NC}"
     fi
-    
+
     echo -e "${GREEN}✅ Antigravity configurado (global)${NC}"
 }
 
@@ -173,7 +184,7 @@ configure_cursor() {
 
     cat > "$cursorDir/mcp.json" << EOF
 {
-  "servers": [
+  "mcpServers": [
     {
       "name": "NexaBase MCP",
       "type": "sse",
@@ -200,7 +211,7 @@ configure_vscode() {
 
     cat > "$vscodeDir/mcp.json" << EOF
 {
-  "servers": [
+  "mcpServers": [
     {
       "name": "NexaBase MCP",
       "type": "sse",
@@ -246,12 +257,14 @@ echo -e ""
 echo -e "${YELLOW}📖 Creando README...${NC}"
 
 currentDate=$(date +"%Y-%m-%d %H:%M:%S")
+environmentName=$([ "$1" = "--local" ] && echo "LOCAL" || echo "PRODUCCIÓN")
 
 cat > "MCP_CONFIGURADO.md" << EOF
 # ✅ MCP Configurado - NexaBase
 
 ## Configuración Completada
 
+- **Ambiente:** $environmentName
 - **Instancia:** $instanceUrl
 - **Editores:** $(if [ "$editorChoice" = "5" ]; then echo "Todos"; else echo "$editorChoice"; fi)
 - **Fecha:** $currentDate
@@ -304,14 +317,18 @@ echo -e "${CYAN}🎉 ¡Configuración Completada!${NC}"
 echo -e "${CYAN}==============================================${NC}"
 echo -e ""
 echo -e "${WHITE}📋 Resumen:${NC}"
+echo -e "${GREEN}   ✅ Ambiente: $environmentName${NC}"
 echo -e "${GREEN}   ✅ Instancia: $instanceUrl${NC}"
 echo -e "${GREEN}   ✅ Editores configurados: $(if [ "$editorChoice" = "5" ]; then echo "Todos"; else echo "$editorChoice"; fi)${NC}"
 echo -e "${GREEN}   ✅ Archivos creados${NC}"
 echo -e ""
 echo -e "${WHITE}🚀 Siguientes pasos:${NC}"
-echo -e "${YELLOW}   1. Reinicia tu editor${NC}"
-echo -e "${YELLOW}   2. Abre el chat de IA${NC}"
-echo -e "${YELLOW}   3. Escribe: 'Lista las colecciones de NexaBase'${NC}"
+if [ "$1" = "--local" ]; then
+    echo -e "${YELLOW}   1. Asegúrate de que el backend esté corriendo: bun run start:dev${NC}"
+fi
+echo -e "${YELLOW}   2. Reinicia tu editor${NC}"
+echo -e "${YELLOW}   3. Abre el chat de IA${NC}"
+echo -e "${YELLOW}   4. Escribe: 'Lista las colecciones de NexaBase'${NC}"
 echo -e ""
 echo -e "${GRAY}📚 Documentación: docs/CLIENTE_GUIA_CONEXION_MCP.md${NC}"
 echo -e "${GRAY}💬 Soporte: soporte@nexabase.online${NC}"
