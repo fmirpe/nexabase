@@ -110,17 +110,13 @@ configure_antigravity() {
     if [ -f "$antigravityGlobalPath" ]; then
         # Usar jq si está disponible, sino usar python
         if command -v jq &> /dev/null; then
-            jq --arg url "$instanceUrl/mcp/sse" --arg key "$apiKey" '.mcpServers.nexabase = {"url": $url, "transport": "sse", "headers": {"X-API-Key": $key}}' "$antigravityGlobalPath" > "$antigravityGlobalPath.tmp" && mv "$antigravityGlobalPath.tmp" "$antigravityGlobalPath"
+            jq --arg url "$instanceUrl/mcp/sse" --arg key "$apiKey" '.mcpServers.nexabase = {"serverUrl": ($url + "?apiKey=" + $key)}' "$antigravityGlobalPath" > "$antigravityGlobalPath.tmp" && mv "$antigravityGlobalPath.tmp" "$antigravityGlobalPath"
         elif command -v python3 &> /dev/null; then
             python3 << PYEOF
 import json
 with open('$antigravityGlobalPath', 'r') as f:
     config = json.load(f)
-config.setdefault('mcpServers', {})['nexabase'] = {
-    'url': '$instanceUrl/mcp/sse',
-    'transport': 'sse',  # Estándar MCP: usar "transport" no "type"
-    'headers': {'X-API-Key': '$apiKey'}
-}
+config.setdefault('mcpServers', {})['nexabase'] = {'serverUrl': '$instanceUrl/mcp/sse?apiKey=$apiKey'}
 with open('$antigravityGlobalPath', 'w') as f:
     json.dump(config, f, indent=2)
 PYEOF
@@ -130,11 +126,7 @@ PYEOF
 {
   "mcpServers": {
     "nexabase": {
-      "url": "$instanceUrl/mcp/sse",
-      "transport": "sse",
-      "headers": {
-        "X-API-Key": "$apiKey"
-      }
+      "serverUrl": "$instanceUrl/mcp/sse?apiKey=$apiKey"
     }
   }
 }
@@ -147,8 +139,7 @@ EOF
 {
   "mcpServers": {
     "nexabase": {
-      "url": "$instanceUrl/mcp/sse",
-      "transport": "sse",
+      "serverUrl": "$instanceUrl/mcp/sse",
       "headers": {
         "X-API-Key": "$apiKey"
       }

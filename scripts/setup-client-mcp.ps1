@@ -112,13 +112,9 @@ function Configure-Antigravity {
     }
 
     # Agregar NexaBase manteniendo otros MCPs
-    # Formato estándar para Antigravity (usando "transport" en lugar de "type")
+    # Usamos query parameter porque algunos proxies no pasan headers personalizados en SSE
     $existingConfig.mcpServers.nexabase = @{
-        url = "$instanceUrl/mcp/sse"
-        transport = "sse"  # Estándar MCP: usar "transport" no "type"
-        headers = @{
-            "X-API-Key" = $apiKey
-        }
+        serverURL = "$instanceUrl/mcp/sse?apiKey=$apiKey"
     }
 
     # Escribir JSON con formato correcto (sin BOM)
