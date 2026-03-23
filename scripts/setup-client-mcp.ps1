@@ -81,31 +81,27 @@ function Configure-Trae {
 function Configure-Antigravity {
     Write-Host ""
     Write-Host "🦅 Configurando Antigravity..." -ForegroundColor Green
-    
+
     $antigravityDir = Join-Path $projectRoot ".antigravity"
     if (!(Test-Path $antigravityDir)) {
         New-Item -ItemType Directory -Path $antigravityDir | Out-Null
     }
-    
+
+    # ✅ FORMATO CORRECTO PARA ANTIGRAVITY: mcp_config.json con estructura mcpServers
     $config = @{
-        version = "1.0"
-        servers = @{
+        mcpServers = @{
             nexabase = @{
-                enabled = $true
                 type = "sse"
-                endpoint = "$instanceUrl/mcp/sse"
-                authentication = @{
-                    type = "bearer"
-                    token = $token
+                url = "$instanceUrl/mcp/sse"
+                headers = @{
+                    Authorization = "Bearer $token"
                 }
-                timeout = 30000
-                retry = $true
             }
         }
     }
-    
-    $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $antigravityDir "mcp-config.json") -Encoding UTF8
-    Write-Host "   ✅ Archivo creado: .antigravity/mcp-config.json" -ForegroundColor Green
+
+    $config | ConvertTo-Json -Depth 10 | Out-File (Join-Path $antigravityDir "mcp_config.json") -Encoding UTF8
+    Write-Host "   ✅ Archivo creado: .antigravity/mcp_config.json" -ForegroundColor Green
 }
 
 # Función para configurar Cursor

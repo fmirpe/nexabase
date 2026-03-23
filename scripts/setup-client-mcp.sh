@@ -89,31 +89,27 @@ EOF
 configure_antigravity() {
     echo -e ""
     echo -e "${GREEN}🦅 Configurando Antigravity...${NC}"
-    
+
     antigravityDir="$projectRoot/.antigravity"
     if [ ! -d "$antigravityDir" ]; then
         mkdir -p "$antigravityDir"
     fi
-    
-    cat > "$antigravityDir/mcp-config.json" << EOF
+
+    # ✅ FORMATO CORRECTO PARA ANTIGRAVITY: mcp_config.json con estructura mcpServers
+    cat > "$antigravityDir/mcp_config.json" << EOF
 {
-  "version": "1.0",
-  "servers": {
+  "mcpServers": {
     "nexabase": {
-      "enabled": true,
       "type": "sse",
-      "endpoint": "$instanceUrl/mcp/sse",
-      "authentication": {
-        "type": "bearer",
-        "token": "$token"
-      },
-      "timeout": 30000,
-      "retry": true
+      "url": "$instanceUrl/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer $token"
+      }
     }
   }
 }
 EOF
-    echo -e "${GREEN}   ✅ Archivo creado: .antigravity/mcp-config.json${NC}"
+    echo -e "${GREEN}   ✅ Archivo creado: .antigravity/mcp_config.json${NC}"
 }
 
 # Función para configurar Cursor
