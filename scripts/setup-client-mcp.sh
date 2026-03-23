@@ -93,7 +93,7 @@ configure_trae() {
     {
       "name": "NexaBase MCP",
       "type": "sse",
-      "url": "$instanceUrl/mcp/sse",
+      "url": "$instanceUrl/api/mcp/sse",
       "headers": {
         "X-API-Key": "$apiKey"
       },

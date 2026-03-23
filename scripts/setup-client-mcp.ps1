@@ -112,12 +112,12 @@ function Configure-Antigravity {
 
     $antigravityGlobalPath = Join-Path $antigravityGlobalDir "mcp_config.json"
 
-    # JSON bien formateado
+    # JSON bien formateado (Antigravity requiere "serverURL" para remotos)
     $jsonContent = @"
 {
   "mcpServers": {
     "nexabase": {
-      "serverURL": "$instanceUrl/mcp/sse",
+      "serverURL": "$instanceUrl/api/mcp/sse",
       "headers": {
         "X-API-Key": "$apiKey"
       }
